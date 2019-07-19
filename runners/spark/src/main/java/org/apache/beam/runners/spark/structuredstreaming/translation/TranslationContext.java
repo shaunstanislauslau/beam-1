@@ -78,6 +78,17 @@ public class TranslationContext {
       sparkConf.setJars(options.getFilesToStage().toArray(new String[0]));
     }
 
+    // By default, Spark defines 200 as a number of sql partitions. This seems too much for local
+    // mode, so try to align with value of "sparkMaster" option in this case.
+    String sparkMaster = options.getSparkMaster();
+    if (sparkMaster != null && sparkMaster.startsWith("local[")) {
+      int numPartitions =
+          Integer.valueOf(sparkMaster.substring("local[".length(), sparkMaster.length() - 1));
+      if (numPartitions > 0) {
+        sparkConf.set("spark.sql.shuffle.partitions", "4");
+      }
+    }
+
     this.sparkSession = SparkSession.builder().config(sparkConf).getOrCreate();
     this.serializablePipelineOptions = new SerializablePipelineOptions(options);
     this.datasets = new HashMap<>();
