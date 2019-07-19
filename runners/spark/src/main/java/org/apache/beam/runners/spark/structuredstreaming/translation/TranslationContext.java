@@ -85,7 +85,7 @@ public class TranslationContext {
       int numPartitions =
           Integer.valueOf(sparkMaster.substring("local[".length(), sparkMaster.length() - 1));
       if (numPartitions > 0) {
-        sparkConf.set("spark.sql.shuffle.partitions", "4");
+        sparkConf.set("spark.sql.shuffle.partitions", String.valueOf(numPartitions));
       }
     }
 
